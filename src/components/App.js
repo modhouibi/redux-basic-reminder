@@ -1,18 +1,24 @@
 import React,{Component} from 'react';
 import {connect} from 'react-redux';
+import moment from 'moment';
 import {bindActionCreators} from 'redux';
-import {addReminder} from '../actions';
+import {addReminder,deleteReminder} from '../actions';
+
 class App extends Component{
 	constructor(props){
 		super(props);
 		this.state={
-			text:''
+			text:'',
+			duedate:''
 		}
 		
 	}
 	addReminder(){
 		console.log('this',this)
-		this.props.addReminder(this.state.text);
+		this.props.addReminder(this.state.text,this.state.duedate);
+	}
+	deleteReminder(id){
+		this.props.deleteReminder(id);
 	}
 	renderMyReminders(){
 		const {myReminders}=this.props;
@@ -22,7 +28,17 @@ class App extends Component{
 			myReminders.map(reminder=>{
 				return(
 				<li key={reminder.id} className='list-group-item'>
+				<div className='list-item'>
 				<div>{reminder.text}</div>
+				<div><em>{moment(new Date(reminder.duedate)).fromNow()}</em></div>
+				</div>
+			
+				<div className='list-item delete-button'
+				onClick={()=>this.deleteReminder(reminder.id)}
+				>
+				&#x2715;
+				</div>
+			
 				</li>
 				)
 			})
@@ -40,6 +56,12 @@ class App extends Component{
 				className='form-control'
 				placeholder='Do ....'
 				onChange={(e)=>this.setState({text:e.target.value})}
+				/>
+				
+				<input
+				className='form-control'
+				type='datetime-local'
+				onChange={(e)=>this.setState({duedate:e.target.value})}
 				/>
 			</div>
 			<button
@@ -65,7 +87,7 @@ function mapStateToProps(state){
 	}
 }
 function mapDispatchToProps(dispatch){
-	return bindActionCreators({addReminder},dispatch);	
+	return bindActionCreators({addReminder,deleteReminder},dispatch);	
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(App);
